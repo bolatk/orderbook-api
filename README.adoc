@@ -21,11 +21,90 @@ To run your application:
 ./mvnw clean compile exec:java
 ```
 
-== Help
+== Overview
+This project is organized into multiple packages to maintain a clean and modular structure. The package organization is designed to separate different parts of the application logically, making it easier to develop, maintain, and extend.
 
-* https://vertx.io/docs/[Vert.x Documentation]
-* https://stackoverflow.com/questions/tagged/vert.x?sort=newest&pageSize=15[Vert.x Stack Overflow]
-* https://groups.google.com/forum/?fromgroups#!forum/vertx[Vert.x User Group]
-* https://discord.gg/6ry7aqPWXy[Vert.x Discord]
+== Package Structure
+
+```
+com.akaibo.orderbook
+│
+├── api
+│   ├── OrderBookApiVerticle.java
+│   ├── OrderApiVerticle.java
+│   └── TradeHistoryApiVerticle.java
+│
+├── model
+│   ├── Order.java
+│   └── Trade.java
+│
+├── service
+│   ├── OrderBookService.java
+│   └── TradeHistoryService.java
+│
+├── util
+│   └── Constants.java
+│
+└── MainVerticle.java
+```
+
+== Package Breakdown
+
+=== `com.akaibo.orderbook.api`
+- This package contains the **Verticles** that handle the API requests for different features.
+- Each Verticle is responsible for the lifecycle of a specific REST API endpoint.
+
+**Classes**:
+- `OrderBookApiVerticle.java`: Handles the API requests for retrieving the order book.
+- `OrderApiVerticle.java`: Handles the API requests for placing limit orders.
+- `TradeHistoryApiVerticle.java`: Handles the API requests for retrieving the trade history.
+
+=== `com.akaibo.orderbook.model`
+- This package contains **data model classes**, which represent entities such as orders and trades.
+- These classes are **Plain Old Java Objects (POJOs)** that hold the data and are used for passing information around the application.
+
+**Classes**:
+- `Order.java`: Represents a limit order with properties like `price`, `quantity`, `side`, and `currencyPair`.
+- `Trade.java`: Represents a trade with properties like `price`, `quantity`, `currencyPair`, `tradedAt`, etc.
+
+=== `com.akaibo.orderbook.service`
+- This package contains **service classes** that implement the business logic for handling operations related to orders, trades, etc.
+- Services are responsible for managing in-memory data structures, business rules, and complex processing.
+
+**Classes**:
+- `OrderBookService.java`: Contains methods for adding, updating, and retrieving orders, maintaining the order book's state.
+- `TradeHistoryService.java`: Contains methods for adding and retrieving trades for the trade history.
+
+=== `com.akaibo.orderbook.util`
+- This package contains utility classes or constants that are used throughout the project.
+- **Constants** or helper methods that multiple components need to access are placed here.
+
+**Classes**:
+- `Constants.java`: Stores constant values such as predefined status messages, error codes, API paths, etc.
+
+=== `com.akaibo.orderbook.MainVerticle`
+- **`MainVerticle`** serves as the entry point for the Vert.x application.
+- It is responsible for deploying all other Verticles that make up the system.
+
+== Example Package Usage
+- A request comes to the `OrderApiVerticle`.
+- The Verticle calls methods from `OrderBookService` to add or remove an order.
+- The `OrderBookService` interacts with **in-memory data structures** to manage orders.
+- The response is returned to the client, using the **model** objects (`Order`, `Trade`) for serialization.
+
+== Benefits of This Organization
+- **Separation of Concerns**: Each component has a distinct purpose, reducing dependencies and making the system easier to maintain.
+- **Modular and Extensible**: Adding new features (e.g., more API endpoints, new business rules) becomes easier because of the well-defined boundaries.
+- **Testing**: The clear separation into **API**, **service**, and **model** packages makes writing unit tests for each layer easier.
+
+== Summary
+This package structure helps maintain a clean and organized codebase, making it easier to manage, understand, and extend as new features are added. Each package plays a specific role:
+- **`api`**: Handles API requests and represents the endpoints.
+- **`model`**: Represents the data structures.
+- **`service`**: Contains business logic and handles core processing.
+- **`util`**: Stores utility code that is used across the application.
+
+
+
 
 
