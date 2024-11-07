@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(VertxExtension.class)
 public class TestMainVerticle {
@@ -36,7 +37,13 @@ public class TestMainVerticle {
             .compose(request -> request.send())
             .onComplete(testContext.succeeding(response -> {
                 assertEquals(200, response.statusCode());
-                testContext.completeNow();
+
+                response.body().onComplete(testContext.succeeding(buffer -> {
+                    String responseBody = buffer.toString();
+                    assertTrue(responseBody.contains("bids"));
+                    assertTrue(responseBody.contains("asks"));
+                    testContext.completeNow();
+                }));
             }));
     }
 }

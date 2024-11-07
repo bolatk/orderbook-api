@@ -1,37 +1,80 @@
 package com.akaibo.orderbook.api;
 
+import com.akaibo.orderbook.model.Order;
+import com.akaibo.orderbook.service.OrderBookService;
+import com.akaibo.orderbook.util.ApiConstants;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 
-import java.util.ArrayList;
-import java.util.Comparator;
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class OrderBookApiVerticle extends AbstractVerticle {
+    private final OrderBookService orderBookService;
 
-    private final List<JsonObject> buyOrders = new ArrayList<>();
-    private final List<JsonObject> sellOrders = new ArrayList<>();
+    public OrderBookApiVerticle(OrderBookService orderBookService) {
+        this.orderBookService = orderBookService;
+    }
 
     @Override
-    public void start(Promise<Void> startPromise) throws Exception {
-
-        // Initialize the order book with some sample data
-        initializeOrderBook();
-
+    public void start(Promise<Void> startPromise) {
         // Create a Router for handling HTTP requests
         Router router = Router.router(vertx);
 
-        // Define the endpoint to get the order book
-        router.get("/orderbook").handler(ctx -> {
-            JsonObject response = new JsonObject()
-                .put("asks", new JsonArray(sellOrders))
-                .put("bids", new JsonArray(buyOrders));
+        // Endpoint to get the order book for a specific currency pair
+        router.get(ApiConstants.ORDER_BOOK_PATH).handler(ctx -> {
+            String currencyPair = ctx.pathParam(ApiConstants.CURRENCY_PAIR_PARAM).toUpperCase();
+            JsonObject response = new JsonObject();
+            JsonArray buyOrders = new JsonArray();
+            JsonArray sellOrders = new JsonArray();
+
+            Map<BigDecimal, List<Order>> aggregatedBuyOrders = orderBookService.getBuyOrdersForPair(currencyPair)
+                .stream()
+                .collect(Collectors.groupingBy(Order::getPrice));
+
+            aggregatedBuyOrders.forEach((price, orders) -> {
+                BigDecimal totalQuantity = orders.stream()
+                    .map(Order::getQuantity)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+                int orderCount = orders.size();
+
+                buyOrders.add(new JsonObject()
+                    .put(ApiConstants.SIDE_PARAM, "buy")
+                    .put(ApiConstants.QUANTITY_PARAM, totalQuantity.stripTrailingZeros().toPlainString())
+                    .put(ApiConstants.PRICE_PARAM, price.stripTrailingZeros().toPlainString())
+                    .put(ApiConstants.CURRENCY_PAIR, currencyPair)
+                    .put(ApiConstants.ORDER_COUNT, orderCount));
+            });
+
+            // Aggregate sell orders by price
+            Map<BigDecimal, List<Order>> aggregatedSellOrders = orderBookService.getSellOrdersForPair(currencyPair)
+                .stream()
+                .collect(Collectors.groupingBy(Order::getPrice));
+
+            aggregatedSellOrders.forEach((price, orders) -> {
+                BigDecimal totalQuantity = orders.stream()
+                    .map(Order::getQuantity)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+                int orderCount = orders.size();
+
+                sellOrders.add(new JsonObject()
+                    .put(ApiConstants.SIDE_PARAM, "sell")
+                    .put(ApiConstants.QUANTITY_PARAM, totalQuantity.stripTrailingZeros().toPlainString())
+                    .put(ApiConstants.PRICE_PARAM, price.stripTrailingZeros().toPlainString())
+                    .put(ApiConstants.CURRENCY_PAIR, currencyPair)
+                    .put(ApiConstants.ORDER_COUNT, orderCount));
+            });
+
+            response.put("bids", buyOrders)
+                    .put("asks", sellOrders);
 
             ctx.response()
-                .putHeader("content-type", "application/json")
+                .putHeader(ApiConstants.CONTENT_TYPE, ApiConstants.CONTENT_TYPE_JSON)
                 .end(response.encodePrettily());
         });
 
@@ -44,23 +87,5 @@ public class OrderBookApiVerticle extends AbstractVerticle {
                 startPromise.fail(http.cause());
             }
         });
-    }
-
-    private void initializeOrderBook() {
-        // Add some sample buy orders (bids)
-        buyOrders.add(new JsonObject().put("price", "900").put("quantity", "1"));
-        buyOrders.add(new JsonObject().put("price", "850").put("quantity", "0.5"));
-        buyOrders.add(new JsonObject().put("price", "800").put("quantity", "2"));
-
-        // Add some sample sell orders (asks)
-        sellOrders.add(new JsonObject().put("price", "1000").put("quantity", "1"));
-        sellOrders.add(new JsonObject().put("price", "1050").put("quantity", "0.75"));
-        sellOrders.add(new JsonObject().put("price", "1100").put("quantity", "1.5"));
-
-        // Sort buy orders by price descending
-        buyOrders.sort(Comparator.comparing(o -> o.getString("price"), Comparator.reverseOrder()));
-
-        // Sort sell orders buy price ascending
-        sellOrders.sort(Comparator.comparing(o -> o.getString("price")));
     }
 }
