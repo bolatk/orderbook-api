@@ -8,7 +8,7 @@ public class Order {
     private final String id;
     private final BigDecimal price;
     private BigDecimal quantity;
-    private String pair;
+    private final String pair;
     private final OrderSide side;
     private final Instant timestamp; // Timestamp of order creation
 
@@ -19,10 +19,6 @@ public class Order {
         this.pair = pair;
         this.side = side;
         this.timestamp = timestamp;
-    }
-
-    public String getId() {
-        return id;
     }
 
     public BigDecimal getPrice() {
