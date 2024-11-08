@@ -135,7 +135,7 @@ public class OrderBookService {
             // sellOrders map is organized by price levels
             sellOrders.computeIfAbsent(order.getPrice(), k -> new LinkedList<>()).add(order);
         }
-        System.out.println("Placed NEW order with id: " + order.getId() + " at: " + order.getTimestamp());
+        System.out.println("Placed NEW order with id: " + order.getId() + ", at price: " + order.getPrice() + ", at: " + order.getTimestamp());
     }
 
     // Get buy orders for a specific currency pair
