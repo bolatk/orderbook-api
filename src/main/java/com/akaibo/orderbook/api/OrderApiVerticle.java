@@ -61,9 +61,9 @@ public class OrderApiVerticle extends AbstractVerticle {
                     .end(response.encodePrettily());
                 return;
             }
-            BigDecimal price = BigDecimal.valueOf(body.getDouble("price"));
-            BigDecimal quantity = BigDecimal.valueOf(body.getDouble("quantity"));
-            String pair = body.getString("pair");
+            BigDecimal price = new BigDecimal(priceStr);
+            BigDecimal quantity = new BigDecimal(quantityStr);
+            String pair = body.getString("pair").toUpperCase();
             Order order = new Order(java.util.UUID.randomUUID().toString(), price, quantity, pair, side, Instant.now());
 
             orderBookService.matchOrderAndAddRemaining(order);
@@ -79,6 +79,7 @@ public class OrderApiVerticle extends AbstractVerticle {
         vertx.createHttpServer().requestHandler(router).listen(8091).onComplete(http -> {
             if (http.succeeded()) {
                 startPromise.complete();
+                // Ideally, you'd use a logger in a real-world scenario, but for simplicity:
                 System.out.println("HTTP server started on port 8091");
             } else {
                 startPromise.fail(http.cause());

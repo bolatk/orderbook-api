@@ -21,6 +21,10 @@ public class Order {
         this.timestamp = timestamp;
     }
 
+    public String getId() {
+        return id;
+    }
+
     public BigDecimal getPrice() {
         return price;
     }

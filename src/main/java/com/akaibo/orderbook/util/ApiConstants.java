@@ -2,7 +2,7 @@ package com.akaibo.orderbook.util;
 
 public final class ApiConstants {
     // API Version
-    public static final String API_VERSION = "/v1";
+    public static final String API_VERSION = "/api/v1";
 
     // Endpoint Paths
     public static final String ORDER_BOOK_PATH = API_VERSION + "/:pair/orderbook";

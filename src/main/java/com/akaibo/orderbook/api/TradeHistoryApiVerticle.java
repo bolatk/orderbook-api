@@ -41,6 +41,7 @@ public class TradeHistoryApiVerticle extends AbstractVerticle {
         vertx.createHttpServer().requestHandler(router).listen(8092).onComplete(http -> {
             if (http.succeeded()) {
                 startPromise.complete();
+                // Ideally, you'd use a logger in a real-world scenario, but for simplicity:
                 System.out.println("HTTP server started on port 8092");
             } else {
                 startPromise.fail(http.cause());

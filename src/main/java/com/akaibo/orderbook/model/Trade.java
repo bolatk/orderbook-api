@@ -10,10 +10,10 @@ public record Trade(String id, BigDecimal price, BigDecimal quantity, String cur
                  BigDecimal quoteVolume) {
         this.id = id;
         this.price = price.setScale(4, RoundingMode.HALF_UP);
-        this.quantity = quantity.setScale(8, RoundingMode.DOWN);
+        this.quantity = quantity.setScale(8, RoundingMode.HALF_UP);
         this.currencyPair = currencyPair;
         this.tradedAt = tradedAt;
         this.takerSide = takerSide;
-        this.quoteVolume = quoteVolume.setScale(8, RoundingMode.DOWN);
+        this.quoteVolume = quoteVolume.setScale(12, RoundingMode.HALF_UP);
     }
 }

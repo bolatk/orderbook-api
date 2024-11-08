@@ -10,8 +10,10 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 
 import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 public class OrderBookApiVerticle extends AbstractVerticle {
@@ -35,7 +37,7 @@ public class OrderBookApiVerticle extends AbstractVerticle {
 
             Map<BigDecimal, List<Order>> aggregatedBuyOrders = orderBookService.getBuyOrdersForPair(currencyPair)
                 .stream()
-                .collect(Collectors.groupingBy(Order::getPrice));
+                .collect(Collectors.groupingBy(Order::getPrice, () -> new TreeMap<>(Comparator.reverseOrder()), Collectors.toList()));
 
             aggregatedBuyOrders.forEach((price, orders) -> {
                 BigDecimal totalQuantity = orders.stream()
@@ -54,7 +56,7 @@ public class OrderBookApiVerticle extends AbstractVerticle {
             // Aggregate sell orders by price
             Map<BigDecimal, List<Order>> aggregatedSellOrders = orderBookService.getSellOrdersForPair(currencyPair)
                 .stream()
-                .collect(Collectors.groupingBy(Order::getPrice));
+                .collect(Collectors.groupingBy(Order::getPrice, TreeMap::new, Collectors.toList()));
 
             aggregatedSellOrders.forEach((price, orders) -> {
                 BigDecimal totalQuantity = orders.stream()
@@ -82,6 +84,7 @@ public class OrderBookApiVerticle extends AbstractVerticle {
         vertx.createHttpServer().requestHandler(router).listen(8090).onComplete(http -> {
             if (http.succeeded()) {
                 startPromise.complete();
+                // Ideally, you'd use a logger in a real-world scenario, but for simplicity:
                 System.out.println("HTTP server started on port 8090");
             } else {
                 startPromise.fail(http.cause());

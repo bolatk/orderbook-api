@@ -59,8 +59,9 @@ public class OrderBookService {
                     // Quote volume represents the total value of the trade in the quote currency (usually the currency against which an asset is being traded).
                     BigDecimal quoteVolume = sellOrder.getPrice().multiply(matchedQuantity);
 
-                    System.out.println("Matched: " + matchedQuantity.stripTrailingZeros().toPlainString() +
-                        " at price: " + sellOrder.getPrice().stripTrailingZeros().toPlainString());
+                    // Ideally, you'd use a logger in a real-world scenario, but for simplicity:
+                    System.out.println("Matched order with id: " + sellOrder.getId() + ", quantity: " + matchedQuantity.stripTrailingZeros().toPlainString() +
+                        " ,at price: " + sellOrder.getPrice().stripTrailingZeros().toPlainString());
 
                     // Record trade
                     Trade trade = new Trade(java.util.UUID.randomUUID().toString(), sellOrder.getPrice(), matchedQuantity,
@@ -101,8 +102,9 @@ public class OrderBookService {
                     // Quote volume represents the total value of the trade in the quote currency (usually the currency against which an asset is being traded).
                     BigDecimal quoteVolume = buyOrder.getPrice().multiply(matchedQuantity);
 
-                    System.out.println("Matched: " + matchedQuantity.stripTrailingZeros().toPlainString() +
-                        " at price: " + buyOrder.getPrice().stripTrailingZeros().toPlainString());
+                    // Ideally, you'd use a logger in a real-world scenario, but for simplicity:
+                    System.out.println("Matched order with id: " + buyOrder.getId() + ", quantity: " + matchedQuantity.stripTrailingZeros().toPlainString() +
+                        ", at price: " + buyOrder.getPrice().stripTrailingZeros().toPlainString());
 
                     Trade trade = new Trade(java.util.UUID.randomUUID().toString(), buyOrder.getPrice(), matchedQuantity,
                         buyOrder.getPair(), Instant.now(), sellOrder.getSide().name(), quoteVolume);
@@ -133,6 +135,7 @@ public class OrderBookService {
             // sellOrders map is organized by price levels
             sellOrders.computeIfAbsent(order.getPrice(), k -> new LinkedList<>()).add(order);
         }
+        System.out.println("Placed NEW order with id: " + order.getId() + " at: " + order.getTimestamp());
     }
 
     // Get buy orders for a specific currency pair
