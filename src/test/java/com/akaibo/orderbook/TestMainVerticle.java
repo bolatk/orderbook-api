@@ -4,6 +4,7 @@ import com.akaibo.orderbook.util.ApiConstants;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpClient;
+import io.vertx.core.http.HttpClientRequest;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
@@ -11,9 +12,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -34,11 +32,11 @@ public class TestMainVerticle {
     }
 
     @Test
-    void testOrderBookApiVerticle(VertxTestContext testContext) throws Throwable {
+    void testOrderBookApiVerticle(VertxTestContext testContext) {
         HttpClient client = vertx.createHttpClient();
 
         client.request(HttpMethod.GET, 8090, "localhost", ApiConstants.ORDER_BOOK_PATH)
-            .compose(request -> request.send())
+            .compose(HttpClientRequest::send)
             .onComplete(testContext.succeeding(response -> {
                 assertEquals(200, response.statusCode());
 
@@ -76,7 +74,7 @@ public class TestMainVerticle {
         HttpClient client = vertx.createHttpClient();
 
         client.request(HttpMethod.GET, 8092, "localhost", ApiConstants.TRADE_HISTORY_PATH)
-            .compose(request -> request.send())
+            .compose(HttpClientRequest::send)
             .onComplete(testContext.succeeding(response -> {
                 assertEquals(200, response.statusCode());
 
