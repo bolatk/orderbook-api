@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(VertxExtension.class)
-public class OrderBookApiTests {
+class OrderBookApiTests {
     private Vertx vertx;
     private OrderBookService orderBookService;
     private TradeHistoryService tradeHistoryService;
@@ -40,7 +40,7 @@ public class OrderBookApiTests {
     }
 
     @Test
-    public void testAddOrderAndMatchOrder() {
+    void testAddOrderAndMatchOrder() {
         // Arrange
         Order buyOrder = new Order("1", new BigDecimal("50000"), new BigDecimal("0.01"), "BTCUSD",
             Order.OrderSide.BUY, Instant.now());
@@ -59,7 +59,7 @@ public class OrderBookApiTests {
     }
 
     @Test
-    public void testPartialOrderMatch() {
+    void testPartialOrderMatch() {
         // Arrange
         Order buyOrder = new Order("3", new BigDecimal("10000"), new BigDecimal("0.02"), "BTCUSD",
             Order.OrderSide.BUY, Instant.now());
@@ -83,7 +83,7 @@ public class OrderBookApiTests {
     }
 
     @Test
-    public void testEmptyOrderBook() {
+    void testEmptyOrderBook() {
         // Assert
         List<Order> buyOrders = orderBookService.getBuyOrdersForPair("BTCUSD");
         List<Order> sellOrders = orderBookService.getSellOrdersForPair("BTCUSD");
@@ -93,7 +93,7 @@ public class OrderBookApiTests {
     }
 
     @Test
-    public void testAddBuyOrderWithoutMatching() {
+    void testAddBuyOrderWithoutMatching() {
         // Arrange
         Order buyOrder = new Order("5", new BigDecimal("15000"), new BigDecimal("0.05"), "BTCUSD", Order.OrderSide.BUY, Instant.now());
 
@@ -108,7 +108,7 @@ public class OrderBookApiTests {
     }
 
     @Test
-    public void testAddSellOrderWithoutMatching() {
+    void testAddSellOrderWithoutMatching() {
         // Arrange
         Order sellOrder = new Order("6", new BigDecimal("20000"), new BigDecimal("0.03"), "BTCUSD", Order.OrderSide.SELL, Instant.now());
 
@@ -123,7 +123,7 @@ public class OrderBookApiTests {
     }
 
     @Test
-    public void testOrderMatchingMultipleLevels() {
+    void testOrderMatchingMultipleLevels() {
         // Arrange
         Order buyOrder1 = new Order("7", new BigDecimal("10000"), new BigDecimal("0.01"), "BTCUSD", Order.OrderSide.BUY, Instant.now());
         Order buyOrder2 = new Order("8", new BigDecimal("10100"), new BigDecimal("0.01"), "BTCUSD", Order.OrderSide.BUY, Instant.now());
@@ -137,9 +137,9 @@ public class OrderBookApiTests {
         // Assert
         List<Trade> trades = tradeHistoryService.getRecentTradesForPair("BTCUSD");
         assertEquals(2, trades.size());
-        assertEquals(new BigDecimal("10100.0000"), trades.get(0).price());
-        assertEquals(new BigDecimal("0.01000000"), trades.get(0).quantity());
-        assertEquals(new BigDecimal("10000.0000"), trades.get(1).price());
+        assertEquals(new BigDecimal("10100.0000"), trades.get(1).price());
         assertEquals(new BigDecimal("0.01000000"), trades.get(1).quantity());
+        assertEquals(new BigDecimal("10000.0000"), trades.get(0).price());
+        assertEquals(new BigDecimal("0.01000000"), trades.get(0).quantity());
     }
 }
